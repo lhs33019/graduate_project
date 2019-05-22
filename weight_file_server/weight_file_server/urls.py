@@ -20,5 +20,6 @@ import giveAndTake.views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('image/', include('giveAndTake.urls')),
-    path('', giveAndTake.views.home, name="home"),
+    path('', giveAndTake.views.index, name="home"),
 ]
+handler404 = 'giveAndTake.views.handler404'
