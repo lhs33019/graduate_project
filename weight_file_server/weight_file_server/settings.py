@@ -29,6 +29,7 @@ DEBUG = bool( os.environ.get('DJANGO_DEBUG', True) )
 
 ALLOWED_HOSTS = ['localhost',
     '.ap-northeast-2.compute.amazonaws.com',
+    '127.0.0.1',
 ]
 
 
@@ -122,10 +123,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
+ROOT_DIR = os.path.dirname(BASE_DIR)
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(ROOT_DIR, '.media')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(ROOT_DIR, '.static')
 
 STATICFILES_DIRS = [
+    STATIC_DIR,
     os.path.join(BASE_DIR, 'givaAndTake', 'static'),
 ]
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
