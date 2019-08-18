@@ -15,11 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path , include
-import giveAndTake.views
+import giveAndTake.views, fileManage.views
+from django.conf.urls import url
+from rest_framework_swagger.views import get_swagger_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('image/', include('giveAndTake.urls')),
     path('', giveAndTake.views.index, name="home"),
+    path('file/', include('fileManage.urls')),
+    path('media/<path:path>/', fileManage.views.download_direct),
+    url(r'^api/doc', get_swagger_view(title='Rest API Document')),
 ]
 handler404 = 'giveAndTake.views.handler404'
