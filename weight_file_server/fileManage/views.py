@@ -6,10 +6,12 @@ from .models import WeightFile, ImageFile
 from .forms import WeightFileForm, ImageFileForm
 from django.core import serializers
 import datetime
+from django import db
 
 
 def download_direct(request, path):
     if request.method == 'GET':
+        db.reset_queries()
         file_path = os.path.join(settings.MEDIA_ROOT, path)
         if os.path.exists(file_path):
             response = HttpResponse(open(file_path, 'rb'), content_type="application/force-download")
@@ -53,6 +55,7 @@ def sendWeight(request):
 
 def downloadWeight(request, file_id):
     if request.method == 'GET':
+        db.reset_queries()
         weightFiles = WeightFile.objects.get(pk=file_id)
         file_path = os.path.join(settings.MEDIA_ROOT, weightFiles.weight_file.path)
         if os.path.exists(file_path):
@@ -82,6 +85,7 @@ def getImageList(request):
 
 def downloadImage(request, file_id):
     if request.method == 'GET':
+        db.reset_queries()
         imageFiles = ImageFile.objects.get(pk=file_id)
         file_path = os.path.join(settings.MEDIA_ROOT, imageFiles.image_file.path)
         if os.path.exists(file_path):
