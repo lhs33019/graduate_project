@@ -19,12 +19,14 @@ import giveAndTake.views, fileManage.views
 from django.conf.urls import url
 from rest_framework_swagger.views import get_swagger_view
 
+schema_view = get_swagger_view(title='Image, Weight File API')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('image/', include('giveAndTake.urls')),
     path('', giveAndTake.views.index, name="home"),
     path('file/', include('fileManage.urls')),
     path('media/<path:path>/', fileManage.views.download_direct),
-    url(r'^api/doc', get_swagger_view(title='Rest API Document')),
+    url(r'^api/doc', schema_view),
 ]
 handler404 = 'giveAndTake.views.handler404'

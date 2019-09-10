@@ -2,10 +2,30 @@ from django.shortcuts import render
 import os, mimetypes
 from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound
 from django.conf import settings
-from .models import WeightFile, ImageFile
-from .forms import WeightFileForm, ImageFileForm
-from django.core import serializers
+from .forms import *
 import datetime
+from .serializers import *
+from rest_framework import viewsets, mixins
+from rest_framework import generics
+from rest_framework.parsers import FormParser, MultiPartParser
+
+
+class ImageFileViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
+    queryset = ImageFile.objects.all()
+    serializer_class = ImageFileSerializer
+    parser_classes = (FormParser, MultiPartParser)
+
+
+class WeightFileViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.ListModelMixin,
+                   viewsets.GenericViewSet):
+    queryset = WeightFile.objects.all()
+    serializer_class = WeightFileSerializer
+    parser_classes = (FormParser, MultiPartParser)
 
 
 def download_direct(request, path):
@@ -19,6 +39,7 @@ def download_direct(request, path):
     else:
         return HttpResponseNotFound('Not valid request')
 
+
 def getWeightList(request):
     if request.method == 'GET':
         weightFiles_list = list(WeightFile.objects.order_by('-created_at').values())
@@ -28,13 +49,14 @@ def getWeightList(request):
         # serialized_object = serializers.serialize('json', [WeightFile.objects.all(), ])
 
         return JsonResponse({
-            'message' : 'Available Weight File List',
-            'Weight Files' : weightFiles_list,
-        }, json_dumps_params = {'ensure_ascii': True})
+            'message': 'Available Weight File List',
+            'Weight Files': weightFiles_list,
+        }, json_dumps_params={'ensure_ascii': True})
 
     else:
         return HttpResponseNotFound('Not valid request')
-    
+
+
 def sendWeight(request):
     if request.method == 'POST':
             form = WeightFileForm(request.POST, request.FILES)
@@ -46,10 +68,10 @@ def sendWeight(request):
             else:
                 print("unvalid")
     else:
-        form = WeightFileForm()
-        return render(request, 'upload.html', {'form': form})
+        return HttpResponseNotFound('Not valid request')
 
     return HttpResponseNotFound('Not valid request')
+
 
 def downloadWeight(request, file_id):
     if request.method == 'GET':
@@ -63,22 +85,6 @@ def downloadWeight(request, file_id):
     else:
         return HttpResponseNotFound('Not valid request')
 
-# Create your views here.
-def getImageList(request):
-    if request.method == 'GET':
-        imageFiles_list = list(ImageFile.objects.order_by('-created_at').values())
-
-        # weightFiles_list = serializers.serialize('json', weightFiles)
-        # weightFiles = serializers.serialize('json', [weightFiles.all()[0], ])
-        # serialized_object = serializers.serialize('json', [WeightFile.objects.all(), ])
-
-        return JsonResponse({
-            'message' : 'Available Image File List',
-            'Image Files' : imageFiles_list,
-        }, json_dumps_params = {'ensure_ascii': True})
-
-    else:
-        return HttpResponseNotFound('Not valid request')
 
 def downloadImage(request, file_id):
     if request.method == 'GET':
@@ -92,6 +98,24 @@ def downloadImage(request, file_id):
     else:
         return HttpResponseNotFound('Not valid request')
 
+
+def getImageList(request):
+    if request.method == 'GET':
+        imageFiles_list = list(ImageFile.objects.order_by('-created_at').values())
+
+        # weightFiles_list = serializers.serialize('json', weightFiles)
+        # weightFiles = serializers.serialize('json', [weightFiles.all()[0], ])
+        # serialized_object = serializers.serialize('json', [WeightFile.objects.all(), ])
+
+        return JsonResponse({
+            'message': 'Available Image File List',
+            'Image Files': imageFiles_list,
+        }, json_dumps_params={'ensure_ascii': True})
+
+    else:
+        return HttpResponseNotFound('There is no file')
+
+
 def sendImage(request):
     if request.method == 'POST':
             form = ImageFileForm(request.POST, request.FILES)
@@ -103,7 +127,6 @@ def sendImage(request):
             else:
                 print("unvalid")
     else:
-        form = ImageFileForm()
-        return render(request, 'upload.html', {'form': form})
+        return HttpResponseNotFound('Not valid request')
 
     return HttpResponseNotFound('Not valid request')
