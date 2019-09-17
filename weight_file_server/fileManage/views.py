@@ -1,21 +1,27 @@
 from django.shortcuts import render
-import os, mimetypes
+import os
 from django.http import HttpResponse, JsonResponse, FileResponse, HttpResponseNotFound
 from django.conf import settings
 from .models import WeightFile, ImageFile
 from .forms import WeightFileForm, ImageFileForm
-from django.core import serializers
-import datetime
 from django import db
+from django.http import StreamingHttpResponse
+from wsgiref.util import FileWrapper
 
 
 def download_direct(request, path):
     if request.method == 'GET':
         db.reset_queries()
         file_path = os.path.join(settings.MEDIA_ROOT, path)
+        filename = os.path.basename(file_path)
+        chunk_size = 8192
         if os.path.exists(file_path):
-            response = HttpResponse(open(file_path, 'rb'), content_type="application/force-download")
-            response['Content-Disposition'] = 'inline; filename=' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            response = StreamingHttpResponse(
+                FileWrapper(open(file_path, 'rb'), chunk_size),
+                content_type="application/octet-stream"
+            )
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            response['Content-Length'] = os.path.getsize(file_path)
             return response
         return HttpResponseNotFound('There is no file')
     else:
@@ -58,9 +64,15 @@ def downloadWeight(request, file_id):
         db.reset_queries()
         weightFiles = WeightFile.objects.get(pk=file_id)
         file_path = os.path.join(settings.MEDIA_ROOT, weightFiles.weight_file.path)
+        filename = os.path.basename(file_path)
+        chunk_size = 8192
         if os.path.exists(file_path):
-            response = HttpResponse(open(file_path, 'rb'), content_type="application/force-download")
-            response['Content-Disposition'] = 'inline; filename=' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            response = StreamingHttpResponse(
+                FileWrapper(open(file_path, 'rb'), chunk_size),
+                content_type="application/octet-stream"
+            )
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            response['Content-Length'] = os.path.getsize(file_path)
             return response
         return HttpResponseNotFound('There is no file')
     else:
@@ -88,9 +100,15 @@ def downloadImage(request, file_id):
         db.reset_queries()
         imageFiles = ImageFile.objects.get(pk=file_id)
         file_path = os.path.join(settings.MEDIA_ROOT, imageFiles.image_file.path)
+        filename = os.path.basename(file_path)
+        chunk_size = 8192
         if os.path.exists(file_path):
-            response = HttpResponse(open(file_path, 'rb'), content_type="application/force-download")
-            response['Content-Disposition'] = 'inline; filename=' + datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+            response = StreamingHttpResponse(
+                FileWrapper(open(file_path, 'rb'), chunk_size),
+                content_type="application/octet-stream"
+            )
+            response['Content-Disposition'] = "attachment; filename=%s" % filename
+            response['Content-Length'] = os.path.getsize(file_path)
             return response
         return HttpResponseNotFound('There is no file')
     else:
